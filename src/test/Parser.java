@@ -1,11 +1,13 @@
 package test;
 
 import java.io.Console;
+import java.io.PrintWriter;
 
 import org.apache.commons.cli.BasicParser;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.Options;
+import org.apache.commons.cli.HelpFormatter;
 
 public class Parser {
 	private Options options;
@@ -22,22 +24,28 @@ public class Parser {
 			DELIMITER = ";",
 			OUTPUT = null,
 			OUTPUT_FILENAME = null,
-			TABLENAME = null
+			TABLENAME = null,
+			FILE_EXTENSION = null
 			;
 	private final String[][] opt = new String[][]{
 		{"h", "true", "Hostname des DBMS. Standard: localhost"},
 		{"u", "true", "Benutzername. Standard: Benutzername des im Betriebssystem angemeldeten Benutzers"},
 		{"p", "false", "Passwort. Alternativ kann ein Passwortprompt angezeigt werden. Standard: keins"},
 		{"d", "true", "Name der Datenbank"},
-		{"s", "true", "Feld, nach dem sortiert werden soll (nur eines möglich, Standard: keines)"},
-		{"r", "true", "Sortierrichtung. Standard: ASC"},
-		{"w", "true", "eine Bedingung in SQL-Syntax, die zum Filtern der Tabelle verwendet wird. Standard: keine"},
-		{"t", "true", "Trennzeichen, dass für die Ausgabe verwendet werden soll. Standard: ; "},
-		{"f", "true", "Kommagetrennte Liste (ohne Leerzeichen) der Felder, die im Ergebnis enthalten sein sollen. * soll akzeptiert werden (Pflicht)"},
+//		{"s", "true", "Feld, nach dem sortiert werden soll (nur eines möglich, Standard: keines)"},
+//		{"r", "true", "Sortierrichtung. Standard: ASC"},
+//		{"w", "true", "eine Bedingung in SQL-Syntax, die zum Filtern der Tabelle verwendet wird. Standard: keine"},
+//		{"t", "true", "Trennzeichen, dass für die Ausgabe verwendet werden soll. Standard: ; "},
+//		{"f", "true", "Kommagetrennte Liste (ohne Leerzeichen) der Felder, die im Ergebnis enthalten sein sollen. * soll akzeptiert werden (Pflicht)"},
 		{"o", "true", "Name der Ausgabedatei. Standard: keine -> Ausgabe auf der Konsole"},
-		{"T", "true", "Tabellenname (Pflicht)"}
+//		{"T", "true", "Tabellenname (Pflicht)"},
+		{"F", "true", "Datei-Typ der Ausgabedatei (XML, PHP, YAML, ...)"}
 	};
+	private HelpFormatter help;
 	
+	public Parser() {
+		help = new HelpFormatter();
+	}
 	public void fillOptions() {
 		options = new Options();
 		for(int i = 0;i < opt.length;++i) {
@@ -89,8 +97,15 @@ public class Parser {
 		if(cmd.hasOption('T')) {
 			TABLENAME = cmd.getOptionValue('T');
 		}
+		if(cmd.hasOption('F')) {
+			FILE_EXTENSION = cmd.getOptionValue('F');
+		}
 	}
 	public Console getConsole() {
 		return console;
+	}
+	public void printHelp(PrintWriter pw) {
+		help.printOptions(pw, 50, options, 5, 5);
+		pw.flush();
 	}
 }

@@ -4,9 +4,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Scanner;
 
-import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.ParseException;
 
 import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
@@ -14,9 +12,7 @@ import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
 public class Connector {
 	private Connection con;
 	private Statement st;
-	private ResultSet rs;
 	private MysqlDataSource ds;
-	private Scanner s;
 	private Parser parser;
 	
 	public Connector(Parser parser) {
@@ -25,8 +21,10 @@ public class Connector {
 	public void connect() throws SQLException {
 		ds = new MysqlDataSource();
 		
-		if(parser.getConsole() == null)
+		if(parser.getConsole() == null) {
+			System.out.println("Connector: Console is null" );
 			parser.PASSWORD = "manuel";
+		}
 		
 		ds.setServerName(parser.IP);
 		ds.setUser(parser.USERNAME);
