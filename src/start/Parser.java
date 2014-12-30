@@ -1,4 +1,4 @@
-package test;
+package start;
 
 import java.io.Console;
 import java.io.PrintWriter;
