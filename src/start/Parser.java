@@ -6,6 +6,7 @@ import java.io.PrintWriter;
 import org.apache.commons.cli.BasicParser;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.HelpFormatter;
 
@@ -27,31 +28,47 @@ public class Parser {
 			TABLENAME = null,
 			FILE_EXTENSION = null
 			;
+	/*
+	 * 1st value is the option itself.
+	 * 2nd value is true if the option it has a value, is false when the option has no value e.g. password --> password prompt (option should just be -p).
+	 * 3rd Description of the option.
+	 * 4th is true if this option is required to successfully start the program.
+	 */
 	private final String[][] opt = new String[][]{
-		{"h", "true", "Hostname des DBMS. Standard: localhost"},
-		{"u", "true", "Benutzername. Standard: Benutzername des im Betriebssystem angemeldeten Benutzers"},
-		{"p", "false", "Passwort. Alternativ kann ein Passwortprompt angezeigt werden. Standard: keins"},
-		{"d", "true", "Name der Datenbank"},
+		{"h", "true", "Hostname des DBMS. Standard: localhost", "false"},
+		{"u", "true", "Benutzername. Standard: Benutzername des im Betriebssystem angemeldeten Benutzers", "false"},
+		{"p", "false", "Passwort. Alternativ kann ein Passwortprompt angezeigt werden. Standard: keins", "false"},
+		{"d", "true", "Name der Datenbank", "true"},
 //		{"s", "true", "Feld, nach dem sortiert werden soll (nur eines möglich, Standard: keines)"},
 //		{"r", "true", "Sortierrichtung. Standard: ASC"},
 //		{"w", "true", "eine Bedingung in SQL-Syntax, die zum Filtern der Tabelle verwendet wird. Standard: keine"},
 //		{"t", "true", "Trennzeichen, dass für die Ausgabe verwendet werden soll. Standard: ; "},
 //		{"f", "true", "Kommagetrennte Liste (ohne Leerzeichen) der Felder, die im Ergebnis enthalten sein sollen. * soll akzeptiert werden (Pflicht)"},
-		{"o", "true", "Name der Ausgabedatei. Standard: keine -> Ausgabe auf der Konsole"},
+		{"o", "true", "Name der Ausgabedatei. Standard: keine -> Ausgabe auf der Konsole", "false"},
 //		{"T", "true", "Tabellenname (Pflicht)"},
-		{"F", "true", "Datei-Typ der Ausgabedatei (XML, PHP, YAML, ...)"}
+		{"F", "true", "Datei-Typ der Ausgabedatei (XML, PHP, YAML, ...)", "true"}
 	};
 	private HelpFormatter help;
 	
 	public Parser() {
 		help = new HelpFormatter();
 	}
+	/**
+	 * Fill the options with the 4th dimensional array above
+	 */
 	public void fillOptions() {
 		options = new Options();
 		for(int i = 0;i < opt.length;++i) {
+			Option tmp = new Option(opt[i][0], Boolean.parseBoolean(opt[i][1]), opt[i][2]);
+			//Option required or not (4th value)
+			tmp.setRequired(Boolean.parseBoolean(opt[i][3]));
 			options.addOption(opt[i][0], Boolean.parseBoolean(opt[i][1]), opt[i][2]);
 		}
 	}
+	/**
+	 * Creates a parser with the given arguments
+	 * @param args Arguments
+	 */
 	public void createParser(String[]args) {
 		try {
 			parser = new BasicParser();
@@ -61,6 +78,9 @@ public class Parser {
 			System.exit(0);
 		}
 	}
+	/**
+	 * Checks the options to be set and saves it in this class String statics
+	 */
 	public void retrieveArgs() {
 		if(cmd.hasOption('h'))
 			IP = cmd.getOptionValue('h');
@@ -104,6 +124,10 @@ public class Parser {
 	public Console getConsole() {
 		return console;
 	}
+	/**
+	 * Prints the help for this parser on a given PrintWriter
+	 * @param pw
+	 */
 	public void printHelp(PrintWriter pw) {
 		help.printOptions(pw, 50, options, 5, 5);
 		pw.flush();
