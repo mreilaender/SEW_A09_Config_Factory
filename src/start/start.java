@@ -28,74 +28,69 @@ public class start {
 			Connector con = new Connector(parser);
 			con.connect();
 
-
+			//get the result of the SQL statment
 			ResultSet rs = con.executeQuery("SELECT id, type, value FROM element");
 
-			if(parser.FILE_EXTENSION.equals("xml")) {
-				ConfigFactory factory = new XMLFactory();
-				for(;rs.next() != false;) {
-					Element tmp = factory.getConfigElement(rs.getString(2), rs.getString(3));
-					if(tmp != null)
-						elements.add(tmp);
-				}
-			}
-			if(parser.FILE_EXTENSION.equals("yaml")) {
-				ConfigFactory factory = new YAMLFactory();
-				for(;rs.next() != false;) {
-					Element tmp = factory.getConfigElement(rs.getString(2), rs.getString(3));
-					if(tmp != null)
-						elements.add(tmp);
-				}
-			}
-			if(parser.FILE_EXTENSION.equals("php")) {
-				ConfigFactory factory = new PHPFactory();
-				for(;rs.next() != false;) {
-					Element tmp = factory.getConfigElement(rs.getString(2), rs.getString(3));
-					if(tmp != null)
-						elements.add(tmp);
-				}
-			}
-			if(parser.FILE_EXTENSION.equals("ini")) {
-				ConfigFactory factory = new INIFactory();
-				for(;rs.next() != false;) {
-					Element tmp = factory.getConfigElement(rs.getString(2), rs.getString(3));
-					if(tmp != null)
-						elements.add(tmp);
-				}
-			}
+			ConfigFactory factory = null;
 
-			//Ausgabe
-			try {
-				if(System.getProperty("os.name").contains("Windows")) {
-					Runtime.getRuntime().exec("cls");
-				} else {
-					Runtime.getRuntime().exec("clear");
-				}
-			} catch (IOException e) {
-				System.out.println("Couldn't clear the console.");
-				System.out.println("-------------- Config -------------");
+			if(parser.FILE_EXTENSION.equals("xml"))
+				factory = new XMLFactory();
+
+			if(parser.FILE_EXTENSION.equals("yaml"))
+				factory = new YAMLFactory();
+
+			if(parser.FILE_EXTENSION.equals("php"))
+				factory = new PHPFactory();
+
+			if(parser.FILE_EXTENSION.equals("ini"))
+				factory = new INIFactory();
+			
+			for(;rs.next() != false;) {
+				Element tmp = factory.getConfigElement(rs.getString(2), rs.getString(3));
+				if(tmp != null)
+					elements.add(tmp);
 			}
+			//output will be written in a file named by the given args (file extension[xml, php, ...] and filename[-o])
 			if(parser.OUTPUT_FILENAME != null) {
-				File f = new File(parser.OUTPUT_FILENAME);
+				File f = new File(parser.OUTPUT_FILENAME + "." + parser.FILE_EXTENSION);
 				try {
+					//create file
 					f.createNewFile();
 					PrintWriter pw = new PrintWriter(f);
-				} catch(IOException e) {
 					
+					//Writing to the file
+					for(int i = 0;i < elements.size();++i) {
+						pw.println(elements.get(i).getFormat());
+						pw.flush();
+					}
+					//close writer
+					pw.close();
+				} catch(IOException e) {
+					System.out.println("Couldn't create file (maybe no permissions?). Output will be on the console.");
+					//Setting the attribute to null so the other output method will be done (Output on the stdout).
+					parser.OUTPUT_FILENAME = null;
 				}
-			} else {
+			} 
+			//Ausgabe auf stdout
+			if(parser.OUTPUT_FILENAME == null) {
+				//Trying to clear the console for better formated output
+				try {
+					//On windows its cls
+					if(System.getProperty("os.name").contains("Windows")) {
+						Runtime.getRuntime().exec("cls");
+					} else { //on linux its clear
+						Runtime.getRuntime().exec("clear");
+					}
+				} catch (IOException e) {
+					System.out.println("Couldn't clear the console.");
+					System.out.println("-------------- Config -------------");
+				}
+				//Finally outputed on the stdout
 				for(int i = 0;i < elements.size();++i) {
-					//				System.out.println(elements.get(2).getFormat());
 					System.out.println(elements.get(i).getFormat());
 				}
 			}
+			con.closeStreams();
 		}
-		//		con.executeQuery("USE notizv");
-		//		ResultSet rs = con.executeQuery("SELECT * FROM person");
-		//		
-		//		rs.next();
-		//		rs.next();
-		//		
-		//		System.out.println(rs.getString(3));
 	}
 }
