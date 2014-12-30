@@ -20,10 +20,9 @@ public class Connector {
 		ds = new MysqlDataSource();
 		
 		if(parser.getConsole() == null) {
-			System.out.println("Connector: Console is null" );
 			//this is just needed on my computer
 			if(System.getProperty("user.name").equals("manuel")) {
-				System.err.println("username is manuel");
+				System.err.println("Username is manuel");
 				parser.PASSWORD = "manuel";
 			}
 		}
